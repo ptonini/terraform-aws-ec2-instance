@@ -1,5 +1,21 @@
+locals {
+  subnet_count = length(var.subnets)
+  volumes = {for disk in flatten([
+    for i in range(var.host_count) : [
+      for k, v in var.volumes : {
+        fullname = "${k}-${i}"
+        host_index = i
+        device_name = v.device_name
+        size = v.size
+      }
+    ]
+  ]) : disk.fullname => disk}
+}
+
+
 module "security_group" {
-  source = "github.com/ptonini/terraform-aws-security-group?ref=v1"
+  source = "ptonini/security-group/aws"
+  version = "~> 1.0.0"
   vpc = var.vpc
   ingress_rules = var.ingress_rules
   builtin_ingress_rules = var.builtin_ingress_rules
@@ -11,7 +27,8 @@ module "security_group" {
 }
 
 module "role" {
-  source = "github.com/ptonini/terraform-aws-iam-role?ref=v1"
+  source = "ptonini/iam-role/aws"
+  version = "~> 1.0.0"
   count = var.instance_role ? 1 : 0
   assume_role_principal = {Service = "ec2.amazonaws.com"}
   policy_arns = var.instance_policy_arns
