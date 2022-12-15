@@ -1,6 +1,6 @@
 variable "name" {}
 
-variable account {}
+variable "account" {}
 
 variable "host_count" {
   default = 1
@@ -28,15 +28,15 @@ variable "subnets" {
 
 variable "root_volume" {
   default = {
-    volume_type = "gp2"
-    volume_size = 20
+    volume_type           = "gp2"
+    volume_size           = 20
     delete_on_termination = true
   }
 }
 
 variable "tags" {}
 
-variable source_dest_check {
+variable "source_dest_check" {
   default = "true"
 }
 
@@ -56,15 +56,12 @@ variable "builtin_egress_rules" {
   default = ["all"]
 }
 
-variable "route53_zone" {
-  type = object({
-    name = string
-    id = string
-  })
-}
-
 variable "instance_role" {
   default = false
+}
+
+variable "instance_assume_role_policy_statements" {
+  default = []
 }
 
 variable "instance_policy_arns" {
@@ -75,13 +72,9 @@ variable "fixed_public_ip" {
   default = false
 }
 
-variable "domain" {
-  default = null
-}
-
 variable "volumes" {
   type = map(object({
-    size = number
+    size        = number
     device_name = string
   }))
   default = {}
