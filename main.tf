@@ -82,6 +82,5 @@ resource "aws_volume_attachment" "this" {
 resource "aws_eip" "this" {
   count    = var.fixed_public_ip ? var.host_count : 0
   instance = aws_instance.this[count.index].id
-  vpc      = true
 }
 
