@@ -1,7 +1,5 @@
 variable "name" {}
 
-variable "account" {}
-
 variable "host_count" {
   default = 1
 }
@@ -37,7 +35,15 @@ variable "root_volume" {
 variable "tags" {}
 
 variable "source_dest_check" {
-  default = "true"
+  default = true
+}
+
+variable "ebs_optimized" {
+  default = true
+}
+
+variable "monitoring" {
+  default = false
 }
 
 variable "ingress_rules" {

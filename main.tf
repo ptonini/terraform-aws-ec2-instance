@@ -48,9 +48,9 @@ resource "aws_iam_instance_profile" "this" {
 resource "aws_instance" "this" {
   count                = var.host_count
   ami                  = var.ami
-  ebs_optimized        = true
+  ebs_optimized        = var.ebs_optimized
   instance_type        = var.type
-  monitoring           = false
+  monitoring           = var.monitoring
   key_name             = var.key_name
   subnet_id            = element(var.subnets, (length(var.subnets) + count.index) % local.subnet_count).id
   iam_instance_profile = var.instance_role ? aws_iam_instance_profile.this.0.id : null
