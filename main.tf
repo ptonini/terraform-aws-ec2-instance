@@ -73,7 +73,8 @@ resource "aws_instance" "this" {
   lifecycle {
     ignore_changes = [
       tags,
-      tags_all
+      tags_all,
+      root_block_device[0]["tags"]
     ]
   }
 }
