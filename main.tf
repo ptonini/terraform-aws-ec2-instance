@@ -43,6 +43,12 @@ module "role" {
 resource "aws_iam_instance_profile" "this" {
   count = var.instance_role ? 1 : 0
   role  = module.role[0].this.name
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 resource "aws_instance" "this" {
@@ -53,7 +59,7 @@ resource "aws_instance" "this" {
   monitoring           = var.monitoring
   key_name             = var.key_name
   subnet_id            = element(var.subnets, (length(var.subnets) + count.index) % local.subnet_count).id
-  iam_instance_profile = var.instance_role ? aws_iam_instance_profile.this.0.id : null
+  iam_instance_profile = var.instance_role ? aws_iam_instance_profile.this[0].id : null
   vpc_security_group_ids = [
     module.security_group.this.id
   ]
@@ -64,12 +70,24 @@ resource "aws_instance" "this" {
     delete_on_termination = var.root_volume.delete_on_termination
   }
   tags = merge({ Name = "${var.name}${format("%04.0f", count.index + 1)}" }, var.tags)
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 resource "aws_ebs_volume" "this" {
   for_each          = local.volumes
   availability_zone = aws_instance.this[each.value["host_index"]].availability_zone
   size              = each.value["size"]
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 resource "aws_volume_attachment" "this" {
@@ -82,5 +100,11 @@ resource "aws_volume_attachment" "this" {
 resource "aws_eip" "this" {
   count    = var.fixed_public_ip ? var.host_count : 0
   instance = aws_instance.this[count.index].id
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
