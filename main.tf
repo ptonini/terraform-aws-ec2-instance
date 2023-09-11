@@ -74,7 +74,7 @@ resource "aws_instance" "this" {
     ignore_changes = [
       tags,
       tags_all,
-      root_block_device[0]["tags"]
+      root_block_device[0].tags
     ]
   }
 }
