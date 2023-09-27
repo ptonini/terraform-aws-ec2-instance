@@ -28,7 +28,7 @@ module "security_group" {
 
 module "role" {
   source  = "ptonini/iam-role/aws"
-  version = "~> 2.0.0"
+  version = "~> 3.0.0"
   count   = var.instance_role ? 1 : 0
   assume_role_policy_statements = concat(
     [{ Effect = "Allow", Principal = { Service = "ec2.amazonaws.com" }, Action = "sts:AssumeRole" }],

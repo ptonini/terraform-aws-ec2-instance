@@ -32,7 +32,9 @@ variable "root_volume" {
   }
 }
 
-variable "tags" {}
+variable "tags" {
+  default = {}
+}
 
 variable "source_dest_check" {
   default = true
