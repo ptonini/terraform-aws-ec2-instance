@@ -12,12 +12,6 @@ variable "type" {
 
 variable "key_name" {}
 
-variable "vpc" {
-  type = object({
-    id = string
-  })
-}
-
 variable "subnets" {
   type = list(object({
     id = string
@@ -25,14 +19,11 @@ variable "subnets" {
 }
 
 variable "root_volume" {
-  default = {
-    volume_type           = "gp2"
-    volume_size           = 20
-    delete_on_termination = true
-  }
-}
-
-variable "tags" {
+  type = object({
+    volume_type           = optional(string, "gp2")
+    volume_size           = optional(number, 20)
+    delete_on_termination = optional(bool, true)
+  })
   default = {}
 }
 
@@ -48,32 +39,13 @@ variable "monitoring" {
   default = false
 }
 
-variable "ingress_rules" {
-  default = {}
-}
-
-variable "builtin_ingress_rules" {
-  default = []
-}
-
-variable "egress_rules" {
-  default = {}
-}
-
-variable "builtin_egress_rules" {
-  default = ["all"]
-}
-
 variable "instance_role" {
-  default = false
-}
-
-variable "instance_assume_role_policy_statements" {
-  default = []
-}
-
-variable "instance_policy_arns" {
-  default = {}
+  type = object({
+    enabled                       = optional(bool, true)
+    assume_role_policy_statements = list(any)
+    policy_arns                   = optional(set(string))
+  })
+  default = { enabled = false }
 }
 
 variable "fixed_public_ip" {
@@ -87,3 +59,43 @@ variable "volumes" {
   }))
   default = {}
 }
+
+variable "security_group" {
+  type = object({
+    enabled = optional(bool, true)
+    vpc = object({
+      id = string
+    })
+    ingress_rules = optional(map(object({
+      from_port        = number
+      to_port          = optional(number)
+      protocol         = optional(string)
+      cidr_blocks      = optional(set(string))
+      ipv6_cidr_blocks = optional(set(string))
+      prefix_list_ids  = optional(set(string))
+      security_groups  = optional(set(string))
+      self             = optional(bool)
+    })), {})
+    egress_rules = optional(map(object({
+      from_port        = number
+      to_port          = optional(number)
+      protocol         = optional(string)
+      cidr_blocks      = optional(set(string))
+      ipv6_cidr_blocks = optional(set(string))
+      prefix_list_ids  = optional(set(string))
+      security_groups  = optional(set(string))
+      self             = optional(bool)
+    })), {})
+  })
+  default = { enabled = false }
+}
+
+variable "vpc_security_group_ids" {
+  type    = set(string)
+  default = []
+}
+
+variable "tags" {
+  default = {}
+}
+
