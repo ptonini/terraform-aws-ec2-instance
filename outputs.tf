@@ -7,5 +7,5 @@ output "public_ips" {
 }
 
 output "security_group_id" {
-  value = var.security_group.enabled ? module.security_group.this.id : null
+  value = var.security_group == null ? null : module.security_group[0].this.id
 }

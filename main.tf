@@ -12,31 +12,20 @@ locals {
 }
 
 module "security_group" {
-  source  = "ptonini/security-group/aws"
-  version = "~> 2.0.0"
-  count   = var.security_group.enabled ? 1 : 0
-  name    = "ec2-${var.name}"
-  vpc     = var.security_group.vpc
-  ingress_rules = merge(var.security_group.ingress_rules, {
-    self = {
-      from_port = 0
-      protocol  = -1
-      self      = true
-    }
-  })
-  egress_rules = merge(var.security_group.egress_rules, {
-    all = {
-      from_port   = 0
-      protocol    = -1
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  })
+  source        = "ptonini/security-group/aws"
+  version       = "~> 3.0.0"
+  count         = var.security_group == null ? 0 : 1
+  name          = "ec2-${var.name}"
+  vpc           = var.security_group.vpc
+  ingress_rules = var.security_group.ingress_rules
+  egress_rules  = var.security_group.egress_rules
 }
 
 module "role" {
   source  = "ptonini/iam-role/aws"
   version = "~> 3.0.0"
-  count   = var.instance_role.enabled ? 1 : 0
+  count   = var.instance_role == null ? 0 : 1
+  name    = "ec2-${var.name}"
   assume_role_policy_statements = concat([{
     Effect = "Allow"
     Principal = {
@@ -48,7 +37,7 @@ module "role" {
 }
 
 resource "aws_iam_instance_profile" "this" {
-  count = var.instance_role ? 1 : 0
+  count = var.instance_role == null ? 0 : 1
   role  = module.role[0].this.name
   lifecycle {
     ignore_changes = [
@@ -66,8 +55,8 @@ resource "aws_instance" "this" {
   monitoring             = var.monitoring
   key_name               = var.key_name
   subnet_id              = element(var.subnets, (length(var.subnets) + count.index) % length(var.subnets)).id
-  iam_instance_profile   = var.instance_role ? aws_iam_instance_profile.this[0].id : null
-  vpc_security_group_ids = var.security_group.enabled ? concat([module.security_group[0].this.id], var.vpc_security_group_ids) : var.vpc_security_group_ids
+  iam_instance_profile   = var.instance_role == null ? null : aws_iam_instance_profile.this[0].id
+  vpc_security_group_ids = var.security_group == null ? var.vpc_security_group_ids : concat([module.security_group[0].this.id], var.vpc_security_group_ids)
   source_dest_check      = var.source_dest_check
   root_block_device {
     volume_type           = var.root_volume.volume_type

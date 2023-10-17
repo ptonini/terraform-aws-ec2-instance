@@ -42,10 +42,10 @@ variable "monitoring" {
 variable "instance_role" {
   type = object({
     enabled                       = optional(bool, true)
-    assume_role_policy_statements = list(any)
+    assume_role_policy_statements = optional(list(any), [])
     policy_arns                   = optional(set(string))
   })
-  default = { enabled = false }
+  default = null
 }
 
 variable "fixed_public_ip" {
@@ -63,35 +63,33 @@ variable "volumes" {
 variable "security_group" {
   type = object({
     enabled = optional(bool, true)
-    vpc = object({
+    vpc = optional(object({
       id = string
-    })
+    }))
     ingress_rules = optional(map(object({
-      from_port        = number
-      to_port          = optional(number)
-      protocol         = optional(string)
-      cidr_blocks      = optional(set(string))
-      ipv6_cidr_blocks = optional(set(string))
-      prefix_list_ids  = optional(set(string))
-      security_groups  = optional(set(string))
-      self             = optional(bool)
+      from_port                    = number
+      to_port                      = optional(number)
+      ip_protocol                  = optional(string, "tcp")
+      cidr_ipv4                    = optional(string)
+      cidr_ipv6                    = optional(string)
+      prefix_list_id               = optional(string)
+      referenced_security_group_id = optional(string)
     })), {})
     egress_rules = optional(map(object({
-      from_port        = number
-      to_port          = optional(number)
-      protocol         = optional(string)
-      cidr_blocks      = optional(set(string))
-      ipv6_cidr_blocks = optional(set(string))
-      prefix_list_ids  = optional(set(string))
-      security_groups  = optional(set(string))
-      self             = optional(bool)
+      from_port                    = number
+      to_port                      = optional(number)
+      ip_protocol                  = optional(string, "tcp")
+      cidr_ipv4                    = optional(string)
+      cidr_ipv6                    = optional(string)
+      prefix_list_id               = optional(string)
+      referenced_security_group_id = optional(string)
     })), {})
   })
-  default = { enabled = false }
+  default = null
 }
 
 variable "vpc_security_group_ids" {
-  type    = set(string)
+  type    = list(string)
   default = []
 }
 
