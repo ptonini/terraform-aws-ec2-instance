@@ -13,7 +13,7 @@ locals {
 
 module "security_group" {
   source        = "ptonini/security-group/aws"
-  version       = "~> 3.0.0"
+  version       = "~> 3.1.1"
   count         = var.security_group == null ? 0 : 1
   name          = "ec2-${var.name}"
   vpc           = var.security_group.vpc
