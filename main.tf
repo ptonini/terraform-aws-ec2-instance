@@ -41,7 +41,9 @@ resource "aws_iam_instance_profile" "this" {
   role  = module.role[0].this.name
   lifecycle {
     ignore_changes = [
-      tags,
+      tags.business_unit,
+      tags.product,
+      tags.env,
       tags_all
     ]
   }
@@ -66,7 +68,9 @@ resource "aws_instance" "this" {
   tags = merge({ Name = "${var.name}${format("%04.0f", count.index + 1)}" }, var.tags)
   lifecycle {
     ignore_changes = [
-      tags,
+      tags.business_unit,
+      tags.product,
+      tags.env,
       tags_all,
       root_block_device[0].tags
     ]

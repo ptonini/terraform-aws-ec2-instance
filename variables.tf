@@ -67,23 +67,23 @@ variable "security_group" {
       id = string
     }))
     ingress_rules = optional(map(object({
-      from_port                    = number
+      from_port                    = optional(number)
       to_port                      = optional(number)
       ip_protocol                  = optional(string, "tcp")
       cidr_ipv4                    = optional(string)
       cidr_ipv6                    = optional(string)
       prefix_list_id               = optional(string)
       referenced_security_group_id = optional(string)
-    })), {})
+    })), { self = { ip_protocol = -1, referenced_security_group_id = "self" } })
     egress_rules = optional(map(object({
-      from_port                    = number
+      from_port                    = optional(number)
       to_port                      = optional(number)
       ip_protocol                  = optional(string, "tcp")
       cidr_ipv4                    = optional(string)
       cidr_ipv6                    = optional(string)
       prefix_list_id               = optional(string)
       referenced_security_group_id = optional(string)
-    })), {})
+    })), { all = { ip_protocol = -1, cidr_ipv4 = "0.0.0.0/0" } })
   })
   default = null
 }
