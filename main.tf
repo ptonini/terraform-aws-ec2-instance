@@ -39,11 +39,12 @@ module "role" {
 resource "aws_iam_instance_profile" "this" {
   count = var.instance_role == null ? 0 : 1
   role  = module.role[0].this.name
+
   lifecycle {
     ignore_changes = [
-      tags.business_unit,
-      tags.product,
-      tags.env,
+      tags["business_unit"],
+      tags["product"],
+      tags["env"],
       tags_all
     ]
   }
@@ -60,19 +61,22 @@ resource "aws_instance" "this" {
   iam_instance_profile   = var.instance_role == null ? null : aws_iam_instance_profile.this[0].id
   vpc_security_group_ids = var.security_group == null ? var.vpc_security_group_ids : concat([module.security_group[0].this.id], var.vpc_security_group_ids)
   source_dest_check      = var.source_dest_check
+
   root_block_device {
     volume_type           = var.root_volume.volume_type
     volume_size           = var.root_volume.volume_size
     delete_on_termination = var.root_volume.delete_on_termination
   }
+
   tags = merge({ Name = "${var.name}${format("%04.0f", count.index + 1)}" }, var.tags)
+
   lifecycle {
     ignore_changes = [
-      tags.business_unit,
-      tags.product,
-      tags.env,
+      root_block_device[0].tags,
+      tags["business_unit"],
+      tags["product"],
+      tags["env"],
       tags_all,
-      root_block_device[0].tags
     ]
   }
 }
@@ -83,8 +87,10 @@ resource "aws_ebs_volume" "this" {
   size              = each.value["size"]
   lifecycle {
     ignore_changes = [
-      tags,
-      tags_all
+      tags["business_unit"],
+      tags["product"],
+      tags["env"],
+      tags_all,
     ]
   }
 }
@@ -101,8 +107,10 @@ resource "aws_eip" "this" {
   instance = aws_instance.this[count.index].id
   lifecycle {
     ignore_changes = [
-      tags,
-      tags_all
+      tags["business_unit"],
+      tags["product"],
+      tags["env"],
+      tags_all,
     ]
   }
 }
